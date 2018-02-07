@@ -6,11 +6,6 @@ class Client:
     api_base_url = "https://grplug.crm2.dynamics.com/api/data/v9.0"
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
-    tenant_id = "a046955d-cd6f-455a-9195-b6844f05e3e0"
-    client_id = "944a9986-77b7-45a2-b5f1-db17ac298585"
-    client_secret = "5JcKFcmaY3uWUPpdynL1aDwoSFnGMOlOnEa4bKLYtvQ="
-    dynamics_resource = "https://grplug.onmicrosoft.com/245befd8-fedb-4c7b-9e1f-cc5b0ee45b9e"
-    CRM_resource = "https://grplug.crm2.dynamics.com"
 
     def __init__(self, token):
         self.token = token
