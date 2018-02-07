@@ -131,7 +131,7 @@ class Client:
         response = requests.post(url, data=args)
         return self.parse_response(response)
 
-    # TODO: simplifico la libreria y la dejo en 4 metodos principales (CRUD), asumo que el usuario entrega toda la data, yo solo la envio
+    # TODO: four main methods (CRUD)
     def get_data(self, type=None, **kwargs):
         if type is not None:
             return self._get(type, **kwargs)
