@@ -7,7 +7,7 @@ class Client:
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
 
-    def __init__(self, client_id, client_secret, token=None):
+    def __init__(self, client_id=None, client_secret=None, token=None):
         self.client_id = client_id
         self.client_secret = client_secret
         self.token = token
@@ -116,32 +116,42 @@ class Client:
         return response.json()
 
     def url_petition(self, redirect_uri, resource):
-        url = "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&response_type={2}&redirect_uri={3}&response_mode={4}&resource={5}".format(
-            "common", self.client_id, "code", redirect_uri, "query", resource)
+        if self.client_id is not None and redirect_uri is not None and resource is not None:
+            url = "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&response_type={2}&redirect_uri={3}&response_mode={4}&resource={5}".format(
+                "common", self.client_id, "code", redirect_uri, "query", resource)
 
-        # this part needs an administrator autorization
-        # url = "https://login.microsoftonline.com/common/adminconsent?client_id={0}&redirect_uri={1}".format(
-        #     client_id, redirect_uri)
-        return url
+            # this part needs an administrator autorization
+            # url = "https://login.microsoftonline.com/common/adminconsent?client_id={0}&redirect_uri={1}".format(
+            #     client_id, redirect_uri)
+            return url
+        else:
+            raise Exception("The attributes necessary to get the url were not obtained.")
+
 
     def exchange_code(self, redirect_uri, code):
-        url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
-        args = {
-            'client_id': self.client_id,
-            'redirect_uri': redirect_uri,
-            'client_secret': self.client_secret,
-            'code': code,
-            'grant_type': 'authorization_code',
-        }
-        response = requests.post(url, data=args)
-        return self.parse_response(response)
+        if self.client_id is not None and self.client_secret is not None and redirect_uri is not None and code is not None:
+            url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+            args = {
+                'client_id': self.client_id,
+                'redirect_uri': redirect_uri,
+                'client_secret': self.client_secret,
+                'code': code,
+                'grant_type': 'authorization_code',
+            }
+            response = requests.post(url, data=args)
+            return self.parse_response(response)
+        else:
+            raise Exception("The attributes necessary to exchange the code were not obtained.")
 
     def refresh_token(self, refresh_token, redirect_uri, resource):
-        url = "https://login.microsoftonline.com/common/oauth2/token"
-        args = {"client_id": self.client_id, "grant_type": "refresh_token", "refresh_token": refresh_token,
-                "redirect_uri": redirect_uri, "client_secret": self.client_secret, "resource": resource}
-        response = requests.post(url, data=args)
-        return self.parse_response(response)
+        if self.client_id is not None and self.client_secret is not None and refresh_token is not None and redirect_uri is not None and resource is not None:
+            url = "https://login.microsoftonline.com/common/oauth2/token"
+            args = {"client_id": self.client_id, "grant_type": "refresh_token", "refresh_token": refresh_token,
+                    "redirect_uri": redirect_uri, "client_secret": self.client_secret, "resource": resource}
+            response = requests.post(url, data=args)
+            return self.parse_response(response)
+        else:
+            raise Exception("The attributes necessary to refresh the token were not obtained.")
 
     def set_token(self, token):
         """

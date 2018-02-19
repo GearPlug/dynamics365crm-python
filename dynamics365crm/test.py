@@ -3,15 +3,15 @@ import pprint
 
 """
 MAIN INSTANCE (petition)
-obligatory send the access_token
 """
-petition = Client("")
 tenant_id = ""
 client_id = ""
 client_secret = ""
 dynamics_resource = ""
 CRM_resource = ""
 refresh_token = ""
+token = ""
+petition = Client(client_id=client_id, client_secret=client_secret, token=token)
 
 """
 API ENDPOINTS EXAMPLES
@@ -22,7 +22,7 @@ API ENDPOINTS EXAMPLES
 REFRESH TOKEN
 to refresh the token you have to send the client_id, the client_secret, the refresh_token, the redirect_uri, and the resource
 Example:
-    refresh = petition.refresh_token(client_id, client_id, refresh_token, "REDIRECT URI", CRM_resource)
+    refresh = petition.refresh_token(refresh_token, redirect_uri, resource)
     pprint.pprint(refresh)
 """
 
