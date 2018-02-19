@@ -7,9 +7,10 @@ class Client:
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
 
-    def __init__(self, token):
+    def __init__(self, client_id, client_secret, token=None):
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.token = token
-        self.header["Authorization"] = "Bearer " + self.token
 
     def make_request(self, method, endpoint, expand=None, filter=None, orderby=None, select=None, skip=None, top=None,
                      data=None, json=None, **kwargs):
@@ -45,12 +46,16 @@ class Client:
 
         extra = '&'.join(['{0}={1}'.format(k, v) for k, v in extra.items()])
         url = '{0}/{1}?{2}'.format(self.api_base_url, endpoint, extra)
-        print(url)
-        if method == "get":
-            response = requests.request(method, url, headers=self.header, params=kwargs)
+        if self.token:
+            self.header["Authorization"] = "Bearer " + self.token
+
+            if method == "get":
+                response = requests.request(method, url, headers=self.header, params=kwargs)
+            else:
+                response = requests.request(method, url, headers=self.header, data=data, json=json)
+            return self.parse_response(response)
         else:
-            response = requests.request(method, url, headers=self.header, data=data, json=json)
-        return self.parse_response(response)
+            raise Exception("To make petitions the token is necessary")
 
     def _get(self, endpoint, data=None, **kwargs):
         return self.make_request('get', endpoint, data=data, **kwargs)
@@ -110,21 +115,42 @@ class Client:
                     response.url, response.status_code, response.text))
         return response.json()
 
-    def url_petition(self, client_id, redirect_uri, resource):
+    def url_petition(self, redirect_uri, resource):
         url = "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&response_type={2}&redirect_uri={3}&response_mode={4}&resource={5}".format(
-            "common", client_id, "code", redirect_uri, "query", resource)
+            "common", self.client_id, "code", redirect_uri, "query", resource)
 
         # this part needs an administrator autorization
         # url = "https://login.microsoftonline.com/common/adminconsent?client_id={0}&redirect_uri={1}".format(
         #     client_id, redirect_uri)
         return url
 
-    def refresh_token(self, client_id, client_secret, refresh_token, redirect_uri, resource):
-        url = "https://login.microsoftonline.com/common/oauth2/token"
-        args = {"client_id": client_id, "grant_type": "refresh_token", "refresh_token": refresh_token,
-                "redirect_uri": redirect_uri, "client_secret": client_secret, "resource": resource}
+    def exchange_code(self, redirect_uri, code):
+        url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+        args = {
+            'client_id': self.client_id,
+            'redirect_uri': redirect_uri,
+            'client_secret': self.client_secret,
+            'code': code,
+            'grant_type': 'authorization_code',
+        }
         response = requests.post(url, data=args)
         return self.parse_response(response)
+
+    def refresh_token(self, refresh_token, redirect_uri, resource):
+        url = "https://login.microsoftonline.com/common/oauth2/token"
+        args = {"client_id": self.client_id, "grant_type": "refresh_token", "refresh_token": refresh_token,
+                "redirect_uri": redirect_uri, "client_secret": self.client_secret, "resource": resource}
+        response = requests.post(url, data=args)
+        return self.parse_response(response)
+
+    def set_token(self, token):
+        """
+            Sets the Token for its use in this library.
+            :param token: A string with the Token.
+            :return:
+        """
+        if token != "":
+            self.token = token
 
     # TODO: four main methods (CRUD)
     def get_data(self, type=None, **kwargs):
