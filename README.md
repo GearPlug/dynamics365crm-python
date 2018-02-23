@@ -4,7 +4,7 @@ This library works for API version: v9.0
 
 ## Installing
 ```
-git+git://github.com/GearPlug/dynamics365crm-python.git
+pip install dynamics365crm-python
 ```
 
 ## Usage
