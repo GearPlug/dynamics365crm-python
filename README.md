@@ -155,7 +155,6 @@ update_campaign = client.update_campaign(id="ID", name="CAMPAIGN NAME", descript
 ## Requirements
 - requests
 
-
 ## Tests
 ```
 dynamics365crm/test.py
