@@ -3,11 +3,12 @@ import json
 
 
 class Client:
-    api_base_url = "https://grplug.crm2.dynamics.com/api/data/v9.0"
+    api_base_url = "api/data/v9.0"
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
 
-    def __init__(self, client_id=None, client_secret=None, token=None):
+    def __init__(self, resource, client_id=None, client_secret=None, token=None):
+        self.resource = resource
         self.client_id = client_id
         self.client_secret = client_secret
         self.token = token
@@ -43,19 +44,18 @@ class Client:
             extra['$skip'] = skip
         if top is not None and isinstance(top, str):
             extra['$top'] = str(top)
-
         extra = '&'.join(['{0}={1}'.format(k, v) for k, v in extra.items()])
-        url = '{0}/{1}?{2}'.format(self.api_base_url, endpoint, extra)
-        if self.token:
-            self.header["Authorization"] = "Bearer " + self.token
-
-            if method == "get":
-                response = requests.request(method, url, headers=self.header, params=kwargs)
+        if self.resource != "":
+            if self.token:
+                self.header["Authorization"] = "Bearer " + self.token
+                url = '{0}{1}/{2}?{3}'.format(self.resource, self.api_base_url, endpoint, extra)
+                if method == "get":
+                    response = requests.request(method, url, headers=self.header, params=kwargs)
+                else:
+                    response = requests.request(method, url, headers=self.header, data=data, json=json)
+                return self.parse_response(response)
             else:
-                response = requests.request(method, url, headers=self.header, data=data, json=json)
-            return self.parse_response(response)
-        else:
-            raise Exception("To make petitions the token is necessary")
+                raise Exception("To make petitions the token is necessary")
 
     def _get(self, endpoint, data=None, **kwargs):
         return self.make_request('get', endpoint, data=data, **kwargs)
@@ -115,10 +115,10 @@ class Client:
                     response.url, response.status_code, response.text))
         return response.json()
 
-    def url_petition(self, redirect_uri, resource):
-        if self.client_id is not None and redirect_uri is not None and resource is not None:
+    def url_petition(self, redirect_uri):
+        if self.client_id is not None and redirect_uri is not None and self.resource is not None:
             url = "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&response_type={2}&redirect_uri={3}&response_mode={4}&resource={5}".format(
-                "common", self.client_id, "code", redirect_uri, "query", resource)
+                "common", self.client_id, "code", redirect_uri, "query", self.resource)
 
             # this part needs an administrator autorization
             # url = "https://login.microsoftonline.com/common/adminconsent?client_id={0}&redirect_uri={1}".format(
@@ -143,11 +143,11 @@ class Client:
         else:
             raise Exception("The attributes necessary to exchange the code were not obtained.")
 
-    def refresh_token(self, refresh_token, redirect_uri, resource):
-        if self.client_id is not None and self.client_secret is not None and refresh_token is not None and redirect_uri is not None and resource is not None:
+    def refresh_token(self, refresh_token, redirect_uri):
+        if self.client_id is not None and self.client_secret is not None and refresh_token is not None and redirect_uri is not None and self.resource is not None:
             url = "https://login.microsoftonline.com/common/oauth2/token"
             args = {"client_id": self.client_id, "grant_type": "refresh_token", "refresh_token": refresh_token,
-                    "redirect_uri": redirect_uri, "client_secret": self.client_secret, "resource": resource}
+                    "redirect_uri": redirect_uri, "client_secret": self.client_secret, "resource": self.resource}
             response = requests.post(url, data=args)
             return self.parse_response(response)
         else:

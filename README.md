@@ -8,13 +8,22 @@ pip install dynamics365crm-python
 ```
 
 ## Usage
+If you will not use the oauth authentication and you already have an access token, call the library like this:
+- resource = the url of the CRM, example: https://example.crm2.dynamics.com/
 ```
 from dynamics365crm.client import Client
-client = Client('CLIENT_ID', 'CLIENT_SECRET', 'OPTIONAL - access_token')
+client = Client('RESOURCE', 'ACCESS_TOKEN')
 ```
+
+If you will use the oauth authentication call the library like this:
+```
+from dynamics365crm.client import Client
+client = Client('RESOURCE', CLIENT_ID', 'CLIENT_SECRET')
+```
+
 #### Get authorization url
 ```
-url = client.url_petition("REDIRECT_URL", "RESOURCE")
+url = client.url_petition("REDIRECT_URL")
 ```
 
 #### Exchange the code for an access token
@@ -24,7 +33,7 @@ token = client.exchange_code('REDIRECT_URL', 'CODE')
 
 #### Refresh token
 ```
-token = client.refresh_token('REFRESH TOKEN', 'REDIRECT_URL', 'RESOURCE')
+token = client.refresh_token('REFRESH TOKEN', 'REDIRECT_URL')
 ```
 
 #### Set token
