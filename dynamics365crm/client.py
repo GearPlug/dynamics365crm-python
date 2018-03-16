@@ -119,10 +119,6 @@ class Client:
         if self.client_id is not None and redirect_uri is not None and self.resource is not None:
             url = "https://login.microsoftonline.com/{0}/oauth2/authorize?client_id={1}&response_type={2}&redirect_uri={3}&response_mode={4}&resource={5}".format(
                 "common", self.client_id, "code", redirect_uri, "query", self.resource)
-
-            # this part needs an administrator autorization
-            # url = "https://login.microsoftonline.com/common/adminconsent?client_id={0}&redirect_uri={1}".format(
-            #     client_id, redirect_uri)
             return url
         else:
             raise Exception("The attributes necessary to get the url were not obtained.")
@@ -130,7 +126,7 @@ class Client:
 
     def exchange_code(self, redirect_uri, code):
         if self.client_id is not None and self.client_secret is not None and redirect_uri is not None and code is not None:
-            url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
+            url = 'https://login.microsoftonline.com/common/oauth2/token'
             args = {
                 'client_id': self.client_id,
                 'redirect_uri': redirect_uri,
