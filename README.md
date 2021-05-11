@@ -60,12 +60,13 @@ import os
 from dynamics365crm.client import Client
 
 # Data Initializations
+resource = os.getenv("RESOURCE")
 client_id = os.getenv("CLIENT_ID"),
 client_secret = os.getenv("CLIENT_SECRET")
 tenant_id = os.getenv("TENANT_ID")
 scope = os.getenv("SCOPE")
 
-client = Client(client_id, client_secret)
+client = Client(resource, client_id, client_secret)
 
 # Step 2:
 # Call the API to set the token as client.token

@@ -7,7 +7,7 @@ class Client:
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
 
-    def __init__(self, resource=None, client_id=None, client_secret=None, token=None):
+    def __init__(self, resource, client_id=None, client_secret=None, token=None):
         self.resource = resource
         self.client_id = client_id
         self.client_secret = client_secret
