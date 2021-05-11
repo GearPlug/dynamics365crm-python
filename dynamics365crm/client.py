@@ -7,7 +7,7 @@ class Client:
     header = {"Accept": "application/json, */*", "content-type": "application/json; charset=utf-8",
               'OData-MaxVersion': '4.0', 'OData-Version': '4.0'}
 
-    def __init__(self, resource, client_id=None, client_secret=None, token=None):
+    def __init__(self, resource=None, client_id=None, client_secret=None, token=None):
         self.resource = resource
         self.client_id = client_id
         self.client_secret = client_secret
@@ -148,6 +148,31 @@ class Client:
             return self.parse_response(response)
         else:
             raise Exception("The attributes necessary to refresh the token were not obtained.")
+    
+    def set_auth_token_via_tenant(self, tenant_id, scope):
+        """
+        Sets the token for its use via tenant_id and scope
+        :param tenant_id: A string with the tenant_id of the application
+        :param scope: The value passed for the scope parameter in this request should be the resource identifier (application ID URI) of the resource you want, affixed with the .default suffix. For the Microsoft Graph example, the value is https://graph.microsoft.com/.default.
+
+        :return: None
+        """
+        if tenant_id and scope and self.client_id and self.client_secret:
+            url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+            headers = {
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+            args = {
+                "client_id": self.client_id,
+                "scope": scope,
+                "client_secret": self.client_secret,
+                "grant_type": "client_credentials"
+            }
+
+            response = self.parse_response(requests.post(url, headers=headers, data=args))
+            self.set_token(response["access_token"])
+            return
+        raise Exception("The attributes necessary to obtain the token were not obtained/invalid - {tenant_id, scope, client_id, client_secret}")
 
     def set_token(self, token):
         """

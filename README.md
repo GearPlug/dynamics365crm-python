@@ -7,7 +7,7 @@ This library works for API version: v9.0
 pip install dynamics365crm-python
 ```
 
-## Usage
+## Usage (Method I)
 If you will not use the oauth authentication and you already have an access token, call the library like this:
 - resource = the url of the CRM, example: https://example.crm2.dynamics.com/
 ```
@@ -18,7 +18,7 @@ client = Client('RESOURCE', 'ACCESS_TOKEN')
 If you will use the oauth authentication call the library like this:
 ```
 from dynamics365crm.client import Client
-client = Client('RESOURCE', CLIENT_ID', 'CLIENT_SECRET')
+client = Client('RESOURCE', 'CLIENT_ID', 'CLIENT_SECRET')
 ```
 
 #### Get authorization url
@@ -39,6 +39,42 @@ token = client.refresh_token('REFRESH TOKEN', 'REDIRECT_URL')
 #### Set token
 ```
 token = client.set_token('TOKEN')
+```
+
+# Usage (Method II):
+If we're planning to use the `tenant_id` and `scope` with currently present `client_id` and `client_secret`, we can get the authentication token via the following steps:
+
+```py
+# Pre-Step:
+# Setting environment variables
+# export CLIENT_ID="YOUR_CLIENT_ID_HERE"
+# export CLIENT_SECRET="YOUR_CLIENT_ID_HERE"
+# export TENANT_ID="YOUR_TENANT_ID_HERE"
+# export SCOPE="https://graph.microsoft.com/.default"
+
+# Step 1:
+# Initialize the client
+
+# Imports
+import os
+from dynamics365crm.client import Client
+
+# Data Initializations
+client_id = os.getenv("CLIENT_ID"),
+client_secret = os.getenv("CLIENT_SECRET")
+tenant_id = os.getenv("TENANT_ID")
+scope = os.getenv("SCOPE")
+
+client = Client(client_id, client_secret)
+
+# Step 2:
+# Call the API to set the token as client.token
+
+client.set_auth_token_via_tenant(tenant_id, scope)
+
+# Step 3:
+# Verify by printing client.token
+print(f"client token obtained: {client.token}")
 ```
 
 ### Contacts Section
