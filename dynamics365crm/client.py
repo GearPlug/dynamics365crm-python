@@ -75,7 +75,7 @@ class Client:
             :param response:
             :return:
         """
-        if response.status_code == 204 or response.status_code == 201:
+        if response.status_code == 204:
             return True
         elif response.status_code == 400:
             raise Exception(
