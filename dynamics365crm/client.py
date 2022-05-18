@@ -169,7 +169,7 @@ class Client:
             )
         return response.json()
 
-    def authorization_url(self, tenant_id: str, redirect_uri: str, state: str):
+    def authorization_url(self, tenant_id: str, redirect_uri: str, state: str) -> str:
         msal_client = self.build_msal_client(tenant_id)
         return msal_client.get_authorization_request_url(
             self.scopes,
@@ -178,31 +178,18 @@ class Client:
             prompt="consent",  # Forces microsoft to show the consent page
         )
 
-    def exchange_code(self, tenant_id, redirect_uri, code):
-        client = self.build_msal_client(tenant_id)
-        return client.acquire_token_by_authorization_code(code, self.scopes, redirect_uri)
+    def exchange_code(self, tenant_id, redirect_uri, code) -> dict:
+        msal_client = self.build_msal_client(tenant_id)
+        return msal_client.acquire_token_by_authorization_code(code, self.scopes, redirect_uri)
 
-    # def refresh_token(self, refresh_token, redirect_uri):
-    #     if (
-    #         self.client_id is not None
-    #         and self.client_secret is not None
-    #         and refresh_token is not None
-    #         and redirect_uri is not None
-    #         and self.domain is not None
-    #     ):
-    #         url = "https://login.microsoftonline.com/common/oauth2/token"
-    #         args = {
-    #             "client_id": self.client_id,
-    #             "grant_type": "refresh_token",
-    #             "refresh_token": refresh_token,
-    #             "redirect_uri": redirect_uri,
-    #             "client_secret": self.client_secret,
-    #             "resource": self.domain,
-    #         }
-    #         response = requests.post(url, data=args)
-    #         return self.parse_response(response)
-    #     else:
-    #         raise Exception("The attributes necessary to refresh the token were not obtained.")
+    def refresh_access_token(self, tenant_id, refresh_token) -> dict:
+        """
+        This method takes the refresh token and returns a new access token
+
+        If an error ocurred a dict with an error key will be returned
+        """
+        msal_client = self.build_msal_client(tenant_id)
+        return msal_client.acquire_token_by_refresh_token(refresh_token, self.scopes)
 
     # TODO: four main methods (CRUD)
     def get_data(self, type=None, **kwargs):
