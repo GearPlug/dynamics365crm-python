@@ -22,7 +22,7 @@ Arguments for OAuth2 flow
 from dynamics365crm.client import Client
 
 ## Normal use to make calls to the api
-client = Client("https://tenant_name.crmX.dynamics.com", "access_token")
+client = Client("https://tenant_name.crmX.dynamics.com", access_token="access_token")
 
 ## OAuth2 configuration required arguments
 client = Client(
@@ -43,7 +43,7 @@ This will return a [MSAL](https://github.com/AzureAD/microsoft-authentication-li
     - However microsoft azure app configuration is a mess so the Tenant ID is preferable
 - redirect_uri: your service callback url
 - state: your unique generated state to identify the requester
-  - you could also initiate an oauth flow with msal manually with initiate_auth_code_flow method, check the [example](https://github.com/Azure-Samples/ms-identity-python-webapp)
+  - you could also initiate an oauth flow with msal manually with initiate_auth_code_flow method, check the [official example](https://github.com/Azure-Samples/ms-identity-python-webapp)
 
 ```python
 authorization_url = client.authorization_url("tenant_id", "redirect_uri", "state")
