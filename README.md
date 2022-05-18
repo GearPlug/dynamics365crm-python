@@ -46,7 +46,7 @@ This will return a [MSAL](https://github.com/AzureAD/microsoft-authentication-li
   - you could also initiate an oauth flow with msal manually with initiate_auth_code_flow method, check the [official example](https://github.com/Azure-Samples/ms-identity-python-webapp)
 
 ```python
-authorization_url = client.authorization_url("tenant_id", "redirect_uri", "state")
+authorization_url = client.build_authorization_url("tenant_id", "redirect_uri", "state")
 
 >>> "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=XXXX&response_type=code&redirect_uri=https%3A%2F%your_domain/%2Fcallback%2F&scope=https%3A%2F%2tenant_name.crmX.dynamics.com%2Fuser_impersonation+offline_access+openid+profile&state=XXXX&prompt=consent"
 ```
