@@ -8,41 +8,81 @@ pip install dynamics365crm-python
 ```
 
 ## Usage
-If you will not use the oauth authentication and you already have an access token, call the library like this:
-- resource = the url of the CRM, example: https://example.crm2.dynamics.com/
-```
+
+This library provides a client that is initialized with the following arguments
+
+- domain: the dynamics 365 tenant domain (yours or someone else's)
+- access_token: the retrieved token after authentication
+
+Arguments for OAuth2 flow
+- client_id: your Azure AD application client id
+- client_secret: your Azure AD application client secret
+
+```python
 from dynamics365crm.client import Client
-client = Client('RESOURCE', 'ACCESS_TOKEN')
+
+## Normal use to make calls to the api
+client = Client("https://tenant_name.crmX.dynamics.com", "access_token")
+
+## OAuth2 configuration required arguments
+client = Client(
+    "https://tenant_name.crmX.dynamics.com",
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+)
 ```
 
-If you will use the oauth authentication call the library like this:
-```
-from dynamics365crm.client import Client
-client = Client('RESOURCE', CLIENT_ID', 'CLIENT_SECRET')
-```
-
+### OAuth2 Protocol
 #### Get authorization url
-```
-url = client.url_petition("REDIRECT_URL")
+
+This will return a [MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-python) valid authorization url, the following are required:
+
+- tenant_id: someone else's Azure AD tenant_id
+  - Ask the dynamics tenant owner to go to the [Azure Portal](portal.azure.com) and retrieve the Tenant ID from the Azure Active Directory/Overview
+  - If your app is configured as multi-tenant (for any enterprise or personal account to use) you could pass "common" instead od the Tenant ID
+    - However microsoft azure app configuration is a mess so the Tenant ID is preferable
+- redirect_uri: your service callback url
+- state: your unique generated state to identify the requester
+  - you could also initiate an oauth flow with msal manually with initiate_auth_code_flow method, check the [example](https://github.com/Azure-Samples/ms-identity-python-webapp)
+
+```python
+authorization_url = client.authorization_url("tenant_id", "redirect_uri", "state")
+
+>>> "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=XXXX&response_type=code&redirect_uri=https%3A%2F%your_domain/%2Fcallback%2F&scope=https%3A%2F%2tenant_name.crmX.dynamics.com%2Fuser_impersonation+offline_access+openid+profile&state=XXXX&prompt=consent"
 ```
 
-#### Exchange the code for an access token
-```
-token = client.exchange_code('REDIRECT_URL', 'CODE')
+#### Exchange the callback code for an access token
+
+To finish the oauth protocol microsoft will redirect to your callback endpoint with a temporal code in the url query params to be exchanged for the full-fledged token (a json with the access_token, refresh_token, expires_in, etc.)
+
+Again the (**tenant_id** or "common") and **redirect_uri** are required, the third argument is the code sent by microsoft
+
+```python
+token = client.exchange_code("tenant_id", "redirect_uri", "code")
 ```
 
 #### Refresh token
-```
-token = client.refresh_token('REFRESH TOKEN', 'REDIRECT_URL')
+
+If the access token expires you could get a new **access_token** exchanging the long-lived **refresh_token**
+
+Again the **tenant_id** or "common" is required
+
+```python
+token = client.refresh_access_token("tenant_id", "refresh_token")
 ```
 
-#### Set token
-```
-token = client.set_token('TOKEN')
+#### Set access token
+
+You could pass the access_token in the constructor or set it with
+
+```python
+client.set_access_token("access_token")
 ```
 
-### Contacts Section
-- see the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/contact?view=dynamics-ce-odata-9
+## Dynamics Web API
+
+### Contacts
+- See the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/contact?view=dynamics-ce-odata-9
 
 #### Get Contacts
 can receive orderby, filter, select, top, expand
@@ -65,8 +105,8 @@ delete_contact = client.delete_contact('ID')
 update_contact = client.update_contact('ID', firstname="FIRSTNAME", lastname="LASTNAME", middlename="MIDDLENAME", emailaddress1="EMAILADDRESS")
 ```
 
-### Accounts Section
-- see the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/account?view=dynamics-ce-odata-9
+### Accounts
+- See the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/account?view=dynamics-ce-odata-9
 
 #### Get Accounts
 can receive orderby, filter, select, top, expand
@@ -89,8 +129,8 @@ create_account = client.delete_account('ID')
 update_account = client.update_account(id="ID", name="NAME")
 ```
 
-### Opportunities Section
-- see the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/opportunity?view=dynamics-ce-odata-9
+### Opportunities
+- See the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/opportunity?view=dynamics-ce-odata-9
 
 #### Get Opportunities
 can receive orderby, filter, select, top, expand
@@ -113,8 +153,8 @@ delete_opportunities = client.delete_opportunity(id="OPPORTUNITY ID")
 update_opportunities = client.update_opportunity(id="OPPORTUNITY ID", name="OPPORTUNITY NAME", description="SOME DESCRIPTION")
 ```
 
-### Leads Section
-- see the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/lead?view=dynamics-ce-odata-9
+### Leads
+- See the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/lead?view=dynamics-ce-odata-9
 
 #### Get Leads
 can receive orderby, filter, select, top, expand
@@ -137,8 +177,8 @@ delete_leads = client.delete_lead("ID")
 update_leads = client.update_lead(fullname="LEAD NAME", subject="LEAD SUBJECT", mobilephone="123456", websiteurl="WWW.WEBSITE.COM", middlename="MIDDLE LEAD NAME")
 ```
 
-### Campaign Section
-- see the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/campaign?view=dynamics-ce-odata-9
+### Campaigns
+- See the documentation https://docs.microsoft.com/es-es/dynamics365/customer-engagement/web-api/campaign?view=dynamics-ce-odata-9
 
 #### Get Campaigns
 can receive orderby, filter, select, top, expand
@@ -163,11 +203,7 @@ update_campaign = client.update_campaign(id="ID", name="CAMPAIGN NAME", descript
 
 ## Requirements
 - requests
-
-## Tests
-```
-dynamics365crm/test.py
-```
+- msal
 
 ## Contributing
 We are always grateful for any kind of contribution including but not limited to bug reports, code enhancements, bug fixes, and even functionality suggestions.
