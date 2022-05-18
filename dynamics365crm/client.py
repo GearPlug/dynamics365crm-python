@@ -7,7 +7,7 @@ import requests
 class Client:
     api_path = "api/data/v9.0"
 
-    def __init__(self, domain, client_id=None, client_secret=None, token=None):
+    def __init__(self, domain, client_id=None, client_secret=None, access_token=None):
         self.domain = domain.strip("/")
         self.scopes = [f"{domain}/user_impersonation"]
         self.client_id = client_id
@@ -19,8 +19,8 @@ class Client:
             # "OData-MaxVersion": "4.0",
             # "OData-Version": "4.0",
         }
-        if token is not None:
-            self.set_access_token(token)
+        if access_token is not None:
+            self.set_access_token(access_token)
 
     def set_access_token(self, token):
         """
