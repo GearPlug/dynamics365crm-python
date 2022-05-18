@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name="dynamics365crm-python",
-    version="0.1.2",
+    version="0.2.0",
     description="API wrapper for Dynamics365CRM written in Python",
     long_description=read("README.md"),
     url="https://github.com/GearPlug/dynamics365crm-python",
