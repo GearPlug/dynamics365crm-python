@@ -169,7 +169,7 @@ class Client:
             )
         return response.json()
 
-    def authorization_url(self, tenant_id: str, redirect_uri: str, state: str) -> str:
+    def build_authorization_url(self, tenant_id: str, redirect_uri: str, state: str) -> str:
         msal_client = self.build_msal_client(tenant_id)
         return msal_client.get_authorization_request_url(
             self.scopes,
