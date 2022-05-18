@@ -29,8 +29,8 @@ class Client:
         :return:
         """
         assert token is not None, "The token cannot be None."
-        self.token = token
-        self.headers["Authorization"] = "Bearer " + token
+        self.access_token = token
+        self.headers["Authorization"] = "Bearer " + self.access_token
 
     def build_msal_client(self, tenant_id):
         return msal.ConfidentialClientApplication(
@@ -84,7 +84,7 @@ class Client:
             extra["$top"] = str(top)
 
         assert self.domain is not None, "'domain' is required"
-        assert self.token is not None, "You must provide a 'token' to make requests"
+        assert self.access_token is not None, "You must provide a 'token' to make requests"
         url = f"{self.domain}/{self.api_path}/{endpoint}?" + urlencode(extra)
         if method == "get":
             response = requests.request(method, url, headers=self.headers, params=kwargs)
