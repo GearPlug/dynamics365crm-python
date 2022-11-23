@@ -1,5 +1,6 @@
 import msal
 from urllib.parse import urlencode
+import re
 
 import requests
 
@@ -112,7 +113,17 @@ class Client:
         :return:
         """
         if response.status_code == 204 or response.status_code == 201:
-            return True
+            if 'OData-EntityId' in response.headers:
+                entity_id = response.headers['OData-EntityId']
+                if entity_id[-38:-37] == '(' and entity_id[-1:] == ')':  # Check container
+                    guid = entity_id[-37:-1]
+                    guid_pattern = re.compile(r'^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}$', re.IGNORECASE)
+                    if guid_pattern.match(guid):
+                        return guid
+                    else:
+                        return True  # Not all calls return a guid
+            else:
+                return True
         elif response.status_code == 400:
             raise Exception(
                 "The URL {0} retrieved an {1} error. Please check your request body and try again.\nRaw message: {2}".format(
