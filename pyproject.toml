@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dynamics365crm-python"
-version = "1.0.1"
+version = "1.0.2"
 description = "API wrapper for Dynamics365CRM written in Python"
 authors = ["Miguel Ferrer <ingferrermiguel@gmail.com>"]
 license = "MIT"
@@ -10,6 +10,7 @@ packages = [{include = "dynamics365crm"}]
 [tool.poetry.dependencies]
 python = "^3.7"
 requests = "^2.26.0"
+msal = "^1.21.0"
 
 
 [build-system]
